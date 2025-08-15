@@ -1,7 +1,6 @@
 from typing import Literal
 import requests
 import datetime
-import yaml
 
 class TwitterAPI:
     def __init__(self, bearer_token, username):
