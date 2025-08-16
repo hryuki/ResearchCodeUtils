@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+
 def cosine_similarity(matrix_a, matrix_b) -> pd.DataFrame:
     """
     コサイン類似度を計算する関数
@@ -27,6 +28,7 @@ def cosine_similarity(matrix_a, matrix_b) -> pd.DataFrame:
     # NaNを0に置き換える
     df_cos = df_cos.fillna(0)
     return df_cos
+
 
 def flatten_self_sim_df(df_cos: pd.DataFrame) -> np.ndarray:
     """
