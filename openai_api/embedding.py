@@ -1,4 +1,5 @@
 from openai import OpenAI
+import numpy as np
 import time
 
 class Embedding:
@@ -34,3 +35,14 @@ class Embedding:
             res = self._n_time_embed_trial(input = texts, model=model, n=retry_num, sleep_time=sleep_time)
             embeddings = [data.embedding for data in res.data]
             return embeddings
+    
+    def dimension_reduction(self, embeddings, dimension=256):
+        embeddings = np.array([embedding[:dimension] for embedding in embeddings])
+        if embeddings.ndim == 1:
+            norm = np.linalg.norm(embeddings)
+            if norm == 0:
+                return embeddings
+            return embeddings / norm
+        else:
+            norm = np.linalg.norm(embeddings, 2, axis=1, keepdims=True)
+            return np.where(norm == 0, embeddings, embeddings / norm).tolist()
