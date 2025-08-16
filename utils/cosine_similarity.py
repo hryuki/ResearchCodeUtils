@@ -53,3 +53,8 @@ if __name__ == "__main__":
     result = cosine_similarity(matrix_a, matrix_b)
     print(result)
     
+    # Example usage 3
+    df_cos = cosine_similarity(matrix_a, matrix_a)
+    flattened = flatten_self_sim_df(df_cos)
+    print(flattened)
+    
