@@ -1,2 +1,2 @@
-from . import threading_process
-from . import cosine_similarity
+from .threading_process import run_in_executor
+from .cosine_similarity import cosine_similarity

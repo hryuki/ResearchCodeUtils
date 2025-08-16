@@ -1,6 +1,6 @@
 import pandas as pd
 
-def cos_sim(matrix_a, matrix_b) -> pd.DataFrame:
+def cosine_similarity(matrix_a, matrix_b) -> pd.DataFrame:
     """
     コサイン類似度を計算する関数
     Args:
@@ -37,12 +37,12 @@ if __name__ == "__main__":
     # Example usage
     matrix_a = pd.DataFrame(np.random.rand(5, 3), index=[f'item_{i}' for i in range(5)])
     matrix_b = pd.DataFrame(np.random.rand(4, 3), index=[f'item_{i}' for i in range(4)])
-    result = cos_sim(matrix_a, matrix_b)
+    result = cosine_similarity(matrix_a, matrix_b)
     print(result)
     
     # Example usage 2
     matrix_a = np.random.rand(5, 3)
     matrix_b = np.random.rand(4, 3)
-    result = cos_sim(matrix_a, matrix_b)
+    result = cosine_similarity(matrix_a, matrix_b)
     print(result)
     
