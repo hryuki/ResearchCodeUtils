@@ -5,14 +5,14 @@ class Embedding:
     def __init__(self, api_key: str):
         self.client = OpenAI(api_key=api_key)
     
-    def _n_time_embed_trial(self, texts: list[str], model: str = "text-embedding-3-small", n: int = 3, sleep_time: int = 10):
+    def _n_time_embed_trial(self, input: list[str], model: str = "text-embedding-3-small", n: int = 3, sleep_time: int = 10):
         try: 
-            res = self.client.embeddings.create(input=texts, model=model)
+            res = self.client.embeddings.create(input=input, model=model)
         except Exception as e:
             if n > 0:
                 print(f"[WARN] Embedding failed, retrying {n} more times: {e}")
                 time.sleep(sleep_time)
-                return self._n_time_embed_trial(texts, model, n - 1)
+                return self._n_time_embed_trial(input, model, n - 1)
             elif n == 0:
                 print(f"[WARN] Embedding failed after retries")
                 raise e
