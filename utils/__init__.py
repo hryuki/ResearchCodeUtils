@@ -1,2 +1,2 @@
 from .threading_process import run_in_executor
-from .cosine_similarity import cosine_similarity
+from .cosine_similarity import cosine_similarity, flatten_self_sim_df

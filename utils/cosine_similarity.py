@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def cosine_similarity(matrix_a, matrix_b) -> pd.DataFrame:
     """
@@ -9,10 +10,6 @@ def cosine_similarity(matrix_a, matrix_b) -> pd.DataFrame:
     Returns:
         pd.DataFrame: コサイン類似度を含むデータフレーム
     """
-    
-    import pandas as pd
-    import numpy as np
-    
     if not isinstance(matrix_a, pd.DataFrame):
         matrix_a = pd.DataFrame(matrix_a)
     if not isinstance(matrix_b, pd.DataFrame):
@@ -31,9 +28,19 @@ def cosine_similarity(matrix_a, matrix_b) -> pd.DataFrame:
     df_cos = df_cos.fillna(0)
     return df_cos
 
+def flatten_self_sim_df(df_cos: pd.DataFrame) -> np.ndarray:
+    """
+    cosine_similarity(df, df)のように自己類似度を計算した結果のデータフレームをフラットな形式に変換する関数
+    これは、上三角行列の値を1次元の配列に変換するために使用されます。
+    Args:
+        df_cos (pd.DataFrame): コサイン類似度のデータフレーム
+    Returns:
+        np.ndarray: フラットな形式のnp.ndarray
+    """
+    return df_cos.values[np.triu_indices_from(df_cos.values, k=1)]
+
+
 if __name__ == "__main__":
-    import pandas as pd
-    import numpy as np
     # Example usage
     matrix_a = pd.DataFrame(np.random.rand(5, 3), index=[f'item_{i}' for i in range(5)])
     matrix_b = pd.DataFrame(np.random.rand(4, 3), index=[f'item_{i}' for i in range(4)])
