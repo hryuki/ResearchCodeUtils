@@ -18,7 +18,9 @@ class Embedding:
                 raise e
         return res
 
-    def embed(self, texts: list[str],  model: str = "text-embedding-3-small", retry_num: int=6, sleep_time: int=10) -> list[float]:
+    def embed(self, texts: list[str]|str,  model: str = "text-embedding-3-small", retry_num: int=6, sleep_time: int=10) -> list[list[float]]:
+        if isinstance(texts, str):
+            texts = [texts]
         texts = [text.replace("\n", " ") for text in texts]
         if len(texts) > 2048:
             # 分割して処理
