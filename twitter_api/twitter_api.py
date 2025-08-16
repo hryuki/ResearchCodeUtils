@@ -48,9 +48,11 @@ class TwitterAPI:
             dict: レスポンス内容とパラメータを含む辞書
         """
         return {
-            'status_code': response.status_code,
-            'date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'params': params,
+            'metadata': {
+                'status_code': response.status_code,
+                'date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'params': params,
+            },
             'response': response.json() if response.status_code == 200 else response.text
         }
 
