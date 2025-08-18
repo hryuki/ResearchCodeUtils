@@ -38,6 +38,9 @@ def get_entropy_all(matrix):
     if isinstance(matrix, pd.DataFrame):
         matrix = matrix.values
     elif isinstance(matrix, list):
+        # リストの長さが異なる場合、NumPy配列に変換できないため、値に影響が出ないように値を追加する
+        max_length = max(len(row) for row in matrix)
+        matrix = [row + [0] * (max_length - len(row)) for row in matrix]
         matrix = np.array(matrix)
     
     # 1. 各行の合計を計算 (形状を(n, 1)にしてブロードキャスト可能にする)
