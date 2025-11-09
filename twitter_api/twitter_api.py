@@ -57,6 +57,21 @@ class TwitterAPI:
         }
 
     def get_tweets_from_query(self, query, **kwargs):
+        """queryからツイートを取得する. 
+        
+        Args:
+            query (str): 取得したい検索クエリ
+            kwargs: その他のパラメータ
+                - max_results: 取得するツイートの最大数（例: "100"）
+                - next_token: ページネーション用のトークン
+                - start_time: 取得するツイートの開始日時（例: "2023-01-01T00:00:00Z"）
+                - end_time: 取得するツイートの終了日時（例: "2023-01-31T23:59:59Z"）
+                - tweet.fields: 取得するツイートのフィールド
+                - user.fields: 取得するユーザのフィールド
+        
+        Returns:
+            dict: 取得したツイートの情報を含む辞書
+        """
         url = f"{self.base_url}/tweets/search/all"
         
         params = self._get_default_params('/tweets/search')
