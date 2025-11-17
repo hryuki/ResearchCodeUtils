@@ -18,7 +18,7 @@ class TwitterAPI:
     
     def _get_default_params(
             self,
-            method: Literal['/tweets/search', '/tweets/retweeted_by', '/tweets/quoted_by'] = None
+            method: Literal['/tweets/search', '/tweets/retweeted_by', '/tweets/quoted_tweets'] = None
         ) -> dict:
         """
         Returns default parameters for API requests.
@@ -36,7 +36,7 @@ class TwitterAPI:
                 'tweet.fields': "attachments,author_id,context_annotations,conversation_id,created_at,entities,geo,id,in_reply_to_user_id,lang,public_metrics,possibly_sensitive,referenced_tweets,source,text,withheld",
                 'user.fields': "created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,verified_type,withheld",
             }
-        elif method == '/tweets/quoted_by':
+        elif method == '/tweets/quoted_tweets':
             return {
                 "tweet.fields": 'article,attachments,author_id,card_uri,community_id,context_annotations,conversation_id,created_at,display_text_range,edit_controls,edit_history_tweet_ids,entities,geo,id,in_reply_to_user_id,lang,media_metadata,non_public_metrics,note_tweet,organic_metrics,possibly_sensitive,promoted_metrics,public_metrics,referenced_tweets,reply_settings,scopes,source,suggested_source_links,text,withheld',
                 "expansions": 'article.cover_media,article.media_entities,attachments.media_keys,attachments.media_source_tweet,attachments.poll_ids,author_id,edit_history_tweet_ids,entities.mentions.username,geo.place_id,in_reply_to_user_id,entities.note.mentions.username,referenced_tweets.id,referenced_tweets.id.attachments.media_keys,referenced_tweets.id.author_id',
@@ -145,9 +145,9 @@ class TwitterAPI:
         Returns:
             dict: 取得した引用リツイートユーザの情報を含む辞書
         """
-        url = f"{self.base_url}/tweets/{tweet_id}/quoted_by"
+        url = f"{self.base_url}/tweets/{tweet_id}/quoted_tweets"
         
-        params = self._get_default_params('/tweets/quoted_by')
+        params = self._get_default_params('/tweets/quoted_tweets')
         params.update(kwargs)
         
         response = requests.get(url, auth=self._bearer_oauth, params=params)
