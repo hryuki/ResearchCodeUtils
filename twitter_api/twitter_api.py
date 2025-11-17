@@ -18,7 +18,7 @@ class TwitterAPI:
     
     def _get_default_params(
             self,
-            method: Literal['/tweets/search', '/tweets/retweeted_by'] = None
+            method: Literal['/tweets/search', '/tweets/retweeted_by', '/tweets/quoted_by'] = None
         ) -> dict:
         """
         Returns default parameters for API requests.
@@ -35,6 +35,15 @@ class TwitterAPI:
                 'expansions': "pinned_tweet_id",
                 'tweet.fields': "attachments,author_id,context_annotations,conversation_id,created_at,entities,geo,id,in_reply_to_user_id,lang,public_metrics,possibly_sensitive,referenced_tweets,source,text,withheld",
                 'user.fields': "created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,verified_type,withheld",
+            }
+        elif method == '/tweets/quoted_by':
+            return {
+                "tweet.fields": 'article,attachments,author_id,card_uri,community_id,context_annotations,conversation_id,created_at,display_text_range,edit_controls,edit_history_tweet_ids,entities,geo,id,in_reply_to_user_id,lang,media_metadata,non_public_metrics,note_tweet,organic_metrics,possibly_sensitive,promoted_metrics,public_metrics,referenced_tweets,reply_settings,scopes,source,suggested_source_links,text,withheld',
+                "expansions": 'article.cover_media,article.media_entities,attachments.media_keys,attachments.media_source_tweet,attachments.poll_ids,author_id,edit_history_tweet_ids,entities.mentions.username,geo.place_id,in_reply_to_user_id,entities.note.mentions.username,referenced_tweets.id,referenced_tweets.id.attachments.media_keys,referenced_tweets.id.author_id',
+                "media.fields": 'alt_text,duration_ms,height,media_key,non_public_metrics,organic_metrics,preview_image_url,promoted_metrics,public_metrics,type,url,variants,width',
+                "poll.fields": 'duration_minutes,end_datetime,id,options,voting_status',
+                "user.fields": 'affiliation,confirmed_email,connection_status,created_at,description,entities,id,is_identity_verified,location,most_recent_tweet_id,name,parody,pinned_tweet_id,profile_banner_url,profile_image_url,protected,public_metrics,receives_your_dm,subscription,subscription_type,url,username,verified,verified_followers_count,verified_type,withheld',
+                "place.fields": 'contained_within,country,country_code,full_name,geo,id,name,place_type',
             }
         else:
             raise ValueError(f"Unsupported method: {method}")
@@ -118,6 +127,27 @@ class TwitterAPI:
         url = f"{self.base_url}/tweets/{tweet_id}/retweeted_by"
         
         params = self._get_default_params('/tweets/retweeted_by')
+        params.update(kwargs)
+        
+        response = requests.get(url, auth=self._bearer_oauth, params=params)
+        if response.status_code != 200:
+            raise Exception(response.status_code, response.text)
+        return self._log_generator(response, params)
+    
+    def get_quote_user_from_tweet_id(self, tweet_id, **kwargs):
+        """tweet_idから引用リツイートしたユーザを取得する.
+
+        Args:
+            tweet_id (str): 取得したいツイートのID
+        kwargs: その他のパラメータ
+            - max_results: 取得するユーザの最大数（例: "100"）
+            - pagination_token: ページネーション用のトークン
+        Returns:
+            dict: 取得した引用リツイートユーザの情報を含む辞書
+        """
+        url = f"{self.base_url}/tweets/{tweet_id}/quoted_by"
+        
+        params = self._get_default_params('/tweets/quoted_by')
         params.update(kwargs)
         
         response = requests.get(url, auth=self._bearer_oauth, params=params)
