@@ -180,10 +180,10 @@ class TwitterAPI:
             any: 関数の戻り値
         """
         for i in range(max_retries):
+            time.sleep(interval)
             try:
                 return func(*args, **kwargs)
             except Exception as e:
                 print(f"Error: {e}")
-                time.sleep(interval)
         print("Max retries reached. Giving up.")
         return None
