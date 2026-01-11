@@ -1,13 +1,15 @@
-from typing import Literal
+from typing import Callable, Literal
 import requests
 import datetime
+import time
+
 
 class TwitterAPI:
     def __init__(self, bearer_token, username):
         self.bearer_token = bearer_token
         self.username = username
         self.base_url = "https://api.twitter.com/2"
-    
+
     def _bearer_oauth(self, r):
         """
         Method required by bearer token authentication.
@@ -15,39 +17,41 @@ class TwitterAPI:
         r.headers["Authorization"] = f"Bearer {self.bearer_token}"
         r.headers["User-Agent"] = self.username
         return r
-    
+
     def _get_default_params(
-            self,
-            method: Literal['/tweets/search', '/tweets/retweeted_by', '/tweets/quote_tweets'] = None
-        ) -> dict:
+        self,
+        method: Literal[
+            "/tweets/search", "/tweets/retweeted_by", "/tweets/quote_tweets"
+        ] = None,
+    ) -> dict:
         """
         Returns default parameters for API requests.
         """
-        if method == '/tweets/search':
+        if method == "/tweets/search":
             return {
-                'expansions': "attachments.poll_ids,attachments.media_keys,author_id,edit_history_tweet_ids,entities.mentions.username,geo.place_id,in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id",
-                'media.fields': "duration_ms,height,media_key,preview_image_url,type,url,width,public_metrics,non_public_metrics,alt_text,variants",
-                'tweet.fields': "attachments,author_id,context_annotations,conversation_id,created_at,entities,geo,id,in_reply_to_user_id,lang,public_metrics,possibly_sensitive,referenced_tweets,source,text,withheld",
-                'user.fields': "created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,verified_type,withheld",
+                "expansions": "attachments.poll_ids,attachments.media_keys,author_id,edit_history_tweet_ids,entities.mentions.username,geo.place_id,in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id",
+                "media.fields": "duration_ms,height,media_key,preview_image_url,type,url,width,public_metrics,non_public_metrics,alt_text,variants",
+                "tweet.fields": "attachments,author_id,context_annotations,conversation_id,created_at,entities,geo,id,in_reply_to_user_id,lang,public_metrics,possibly_sensitive,referenced_tweets,source,text,withheld",
+                "user.fields": "created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,verified_type,withheld",
             }
-        elif method == '/tweets/retweeted_by':
+        elif method == "/tweets/retweeted_by":
             return {
-                'expansions': "pinned_tweet_id",
-                'tweet.fields': "attachments,author_id,context_annotations,conversation_id,created_at,entities,geo,id,in_reply_to_user_id,lang,public_metrics,possibly_sensitive,referenced_tweets,source,text,withheld",
-                'user.fields': "created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,verified_type,withheld",
+                "expansions": "pinned_tweet_id",
+                "tweet.fields": "attachments,author_id,context_annotations,conversation_id,created_at,entities,geo,id,in_reply_to_user_id,lang,public_metrics,possibly_sensitive,referenced_tweets,source,text,withheld",
+                "user.fields": "created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,verified_type,withheld",
             }
-        elif method == '/tweets/quote_tweets':
+        elif method == "/tweets/quote_tweets":
             return {
-                "tweet.fields": 'article,attachments,author_id,card_uri,community_id,context_annotations,conversation_id,created_at,display_text_range,edit_controls,edit_history_tweet_ids,entities,geo,id,in_reply_to_user_id,lang,media_metadata,note_tweet,possibly_sensitive,public_metrics,referenced_tweets,reply_settings,scopes,source,suggested_source_links,text,withheld',
-                "expansions": 'article.cover_media,article.media_entities,attachments.media_keys,attachments.media_source_tweet,attachments.poll_ids,author_id,edit_history_tweet_ids,entities.mentions.username,geo.place_id,in_reply_to_user_id,entities.note.mentions.username,referenced_tweets.id,referenced_tweets.id.attachments.media_keys,referenced_tweets.id.author_id',
-                "media.fields": 'alt_text,duration_ms,height,media_key,preview_image_url,public_metrics,type,url,variants,width',
-                "poll.fields": 'duration_minutes,end_datetime,id,options,voting_status',
-                "user.fields": 'affiliation,confirmed_email,connection_status,created_at,description,entities,id,is_identity_verified,location,most_recent_tweet_id,name,parody,pinned_tweet_id,profile_banner_url,profile_image_url,protected,public_metrics,receives_your_dm,subscription,subscription_type,url,username,verified,verified_followers_count,verified_type,withheld',
-                "place.fields": 'contained_within,country,country_code,full_name,geo,id,name,place_type',
+                "tweet.fields": "article,attachments,author_id,card_uri,community_id,context_annotations,conversation_id,created_at,display_text_range,edit_controls,edit_history_tweet_ids,entities,geo,id,in_reply_to_user_id,lang,media_metadata,note_tweet,possibly_sensitive,public_metrics,referenced_tweets,reply_settings,scopes,source,suggested_source_links,text,withheld",
+                "expansions": "article.cover_media,article.media_entities,attachments.media_keys,attachments.media_source_tweet,attachments.poll_ids,author_id,edit_history_tweet_ids,entities.mentions.username,geo.place_id,in_reply_to_user_id,entities.note.mentions.username,referenced_tweets.id,referenced_tweets.id.attachments.media_keys,referenced_tweets.id.author_id",
+                "media.fields": "alt_text,duration_ms,height,media_key,preview_image_url,public_metrics,type,url,variants,width",
+                "poll.fields": "duration_minutes,end_datetime,id,options,voting_status",
+                "user.fields": "affiliation,confirmed_email,connection_status,created_at,description,entities,id,is_identity_verified,location,most_recent_tweet_id,name,parody,pinned_tweet_id,profile_banner_url,profile_image_url,protected,public_metrics,receives_your_dm,subscription,subscription_type,url,username,verified,verified_followers_count,verified_type,withheld",
+                "place.fields": "contained_within,country,country_code,full_name,geo,id,name,place_type",
             }
         else:
             raise ValueError(f"Unsupported method: {method}")
-    
+
     def _log_generator(self, response, params) -> dict:
         """APIをいつどのようなパラメータで呼び出したのか必ず記録するための関数.
         Args:
@@ -57,17 +61,19 @@ class TwitterAPI:
             dict: レスポンス内容とパラメータを含む辞書
         """
         return {
-            'metadata': {
-                'status_code': response.status_code,
-                'date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'params': params,
+            "metadata": {
+                "status_code": response.status_code,
+                "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "params": params,
             },
-            'response': response.json() if response.status_code == 200 else response.text
+            "response": (
+                response.json() if response.status_code == 200 else response.text
+            ),
         }
 
     def get_tweets_from_query(self, query, **kwargs):
-        """queryからツイートを取得する. 
-        
+        """queryからツイートを取得する.
+
         Args:
             query (str): 取得したい検索クエリ
             kwargs: その他のパラメータ
@@ -77,25 +83,25 @@ class TwitterAPI:
                 - end_time: 取得するツイートの終了日時（例: "2023-01-31T23:59:59Z"）
                 - tweet.fields: 取得するツイートのフィールド
                 - user.fields: 取得するユーザのフィールド
-        
+
         Returns:
             dict: 取得したツイートの情報を含む辞書
         """
         url = f"{self.base_url}/tweets/search/all"
-        
-        params = self._get_default_params('/tweets/search')
-        params['query'] = query
+
+        params = self._get_default_params("/tweets/search")
+        params["query"] = query
         params.update(kwargs)
-        
+
         response = requests.get(url, auth=self._bearer_oauth, params=params)
         # print(response.status_code)
         if response.status_code != 200:
             raise Exception(response.status_code, response.text)
         return self._log_generator(response, params)
-    
+
     def get_tweets_from_user_id(self, user_id: str, **kwargs):
         """user_idからツイートを取得する. 取得されるツイートはリツイートを除く.
-        
+
         Args:
             user_id (str): 取得したいユーザ名
             kwargs: その他のパラメータ
@@ -105,13 +111,11 @@ class TwitterAPI:
                 - end_time: 取得するツイートの終了日時（例: "2023-01-31T23:59:59Z"）
                 - tweet.fields: 取得するツイートのフィールド
                 - user.fields: 取得するユーザのフィールド
-        
+
         Returns:
             dict: 取得したツイートの情報を含む辞書
         """
-        return self.get_tweets_from_query(
-            f"from:{user_id} -is:retweet", **kwargs
-        )
+        return self.get_tweets_from_query(f"from:{user_id} -is:retweet", **kwargs)
 
     def get_retweet_user_from_tweet_id(self, tweet_id, **kwargs):
         """tweet_idからリツイートしたユーザを取得する.
@@ -125,15 +129,15 @@ class TwitterAPI:
             dict: 取得したリツイートユーザの情報を含む辞書
         """
         url = f"{self.base_url}/tweets/{tweet_id}/retweeted_by"
-        
-        params = self._get_default_params('/tweets/retweeted_by')
+
+        params = self._get_default_params("/tweets/retweeted_by")
         params.update(kwargs)
-        
+
         response = requests.get(url, auth=self._bearer_oauth, params=params)
         if response.status_code != 200:
             raise Exception(response.status_code, response.text)
         return self._log_generator(response, params)
-    
+
     def get_quote_user_from_tweet_id(self, tweet_id, **kwargs):
         """tweet_idから引用リツイートしたユーザを取得する.
 
@@ -146,11 +150,40 @@ class TwitterAPI:
             dict: 取得した引用リツイートユーザの情報を含む辞書
         """
         url = f"{self.base_url}/tweets/{tweet_id}/quote_tweets"
-        
-        params = self._get_default_params('/tweets/quote_tweets')
+
+        params = self._get_default_params("/tweets/quote_tweets")
         params.update(kwargs)
-        
+
         response = requests.get(url, auth=self._bearer_oauth, params=params)
         if response.status_code != 200:
             raise Exception(response.status_code, response.text)
         return self._log_generator(response, params)
+
+    def error_handled_executor(
+        self,
+        func: Callable,
+        max_retries: int = 5,
+        interval: int = 3,
+        *args,
+        **kwargs,
+    ):
+        """
+        指定された関数を実行し、例外が発生した場合は複数回実行を行う
+
+        Args:
+            func (function): 実行したい関数
+            max_retries (int): 最大試行回数
+            interval (int): 例外が発生した場合の待機時間
+            *args: 関数に渡す引数
+            **kwargs: 関数に渡すキーワード引数
+        Returns:
+            any: 関数の戻り値
+        """
+        for i in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                print(f"Error: {e}")
+                time.sleep(interval)
+        print("Max retries reached. Giving up.")
+        return None
